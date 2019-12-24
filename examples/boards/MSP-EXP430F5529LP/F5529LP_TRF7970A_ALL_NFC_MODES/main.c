@@ -253,6 +253,11 @@ void main(void)
 	// Initialize IDs for NFC-A, NFC-B and NFC-F
 	NFC_initIDs();
 
+	// Enable Card Emulation for NFC-B
+    g_sCESupportedModes.bits.bT4TAEnabled = 0;
+    g_sCESupportedModes.bits.bT4TBEnabled = 1;
+	NFC_CE_configure(g_sCESupportedModes);
+
 #ifdef MSP430F5529_EXP_LCD_ENABLED
 	// Initi8alize the LCD and Display default menu
 	LCD_init();
