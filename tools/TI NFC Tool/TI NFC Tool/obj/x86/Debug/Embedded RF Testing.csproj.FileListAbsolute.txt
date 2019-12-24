@@ -1,0 +1,9 @@
+c:\users\a0273442\documents\visual studio 2010\Projects\Embedded RF Testing\Embedded RF Testing\bin\Debug\Embedded RF Testing.exe
+c:\users\a0273442\documents\visual studio 2010\Projects\Embedded RF Testing\Embedded RF Testing\bin\Debug\Embedded RF Testing.pdb
+c:\users\a0273442\documents\visual studio 2010\Projects\Embedded RF Testing\Embedded RF Testing\obj\x86\Debug\ResolveAssemblyReference.cache
+c:\users\a0273442\documents\visual studio 2010\Projects\Embedded RF Testing\Embedded RF Testing\obj\x86\Debug\Embedded_RF_Testing.Properties.Resources.resources
+c:\users\a0273442\documents\visual studio 2010\Projects\Embedded RF Testing\Embedded RF Testing\obj\x86\Debug\GenerateResource.read.1.tlog
+c:\users\a0273442\documents\visual studio 2010\Projects\Embedded RF Testing\Embedded RF Testing\obj\x86\Debug\GenerateResource.write.1.tlog
+c:\users\a0273442\documents\visual studio 2010\Projects\Embedded RF Testing\Embedded RF Testing\obj\x86\Debug\Embedded RF Testing.exe
+c:\users\a0273442\documents\visual studio 2010\Projects\Embedded RF Testing\Embedded RF Testing\obj\x86\Debug\Embedded RF Testing.pdb
+C:\Users\a0273442\Documents\Visual Studio 2010\Projects\Embedded RF Testing\Embedded RF Testing\obj\x86\Debug\Embedded_RF_Testing.Embedded_RF_Tool.resources

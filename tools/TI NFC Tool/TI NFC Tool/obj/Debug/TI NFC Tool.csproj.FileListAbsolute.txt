@@ -1,0 +1,45 @@
+C:\Users\a0273442\Documents\Visual Studio 2010\Projects\TI NFC Tool\TI NFC Tool\bin\Debug\TI NFC Tool.exe
+C:\Users\a0273442\Documents\Visual Studio 2010\Projects\TI NFC Tool\TI NFC Tool\obj\Debug\ResolveAssemblyReference.cache
+C:\Users\a0273442\Documents\Visual Studio 2010\Projects\TI NFC Tool\TI NFC Tool\obj\Debug\TI_NFC_Tool.TI_NFC_Tool.resources
+C:\Users\a0273442\Documents\Visual Studio 2010\Projects\TI NFC Tool\TI NFC Tool\obj\Debug\TI_NFC_Tool.Properties.Resources.resources
+C:\Users\a0273442\Documents\Visual Studio 2010\Projects\TI NFC Tool\TI NFC Tool\obj\Debug\GenerateResource.read.1.tlog
+C:\Users\a0273442\Documents\Visual Studio 2010\Projects\TI NFC Tool\TI NFC Tool\obj\Debug\GenerateResource.write.1.tlog
+C:\Users\a0273442\Documents\Visual Studio 2010\Projects\TI NFC Tool\TI NFC Tool\obj\Debug\TI NFC Tool.exe
+C:\Users\a0273442\Documents\Visual Studio 2010\Projects\TI NFC Tool\TI NFC Tool\obj\Debug\TI NFC Tool.pdb
+C:\Users\a0273442\Documents\Visual Studio 2010\Projects\TI NFC Tool\TI NFC Tool\bin\Debug\TI NFC Tool.pdb
+C:\NFC\nfc-standalone\TI NFC Tool\TI NFC Tool\obj\Debug\TI NFC Tool.exe
+C:\NFC\nfc-standalone\TI NFC Tool\TI NFC Tool\obj\Debug\TI NFC Tool.pdb
+C:\NFC\nfc-standalone\TI NFC Tool\TI NFC Tool\obj\Debug\ResolveAssemblyReference.cache
+C:\NFC\nfc-standalone\TI NFC Tool\TI NFC Tool\obj\Debug\TI_NFC_Tool.TI_NFC_Tool.resources
+C:\NFC\nfc-standalone\TI NFC Tool\TI NFC Tool\obj\Debug\TI_NFC_Tool.Properties.Resources.resources
+C:\NFC\nfc-standalone\TI NFC Tool\TI NFC Tool\obj\Debug\GenerateResource.read.1.tlog
+C:\NFC\nfc-standalone\TI NFC Tool\TI NFC Tool\obj\Debug\GenerateResource.write.1.tlog
+C:\NFC\nfc-standalone\TI NFC Tool\TI NFC Tool\bin\Debug\TI NFC Tool.exe
+C:\NFC\nfc-standalone\TI NFC Tool\TI NFC Tool\bin\Debug\TI NFC Tool.pdb
+C:\Users\a0273442\Dropbox\TI S2 NFC_RFID_Apps_Team\EP Summit 2015\NFCLink_Standalone_FlashDrive\TI NFC Tool Source Code\TI NFC Tool\obj\Debug\TI NFC Tool.exe
+C:\Users\a0273442\Dropbox\TI S2 NFC_RFID_Apps_Team\EP Summit 2015\NFCLink_Standalone_FlashDrive\TI NFC Tool Source Code\TI NFC Tool\obj\Debug\TI NFC Tool.pdb
+C:\NFC\Test\nfc-standalone\TI NFC Tool\TI NFC Tool\obj\Debug\TI NFC Tool.exe
+C:\NFC\Test\nfc-standalone\TI NFC Tool\TI NFC Tool\obj\Debug\TI NFC Tool.pdb
+C:\NFC\Test\nfc-standalone\TI NFC Tool\TI NFC Tool\bin\Debug\TI NFC Tool.exe
+C:\NFC\Test\nfc-standalone\TI NFC Tool\TI NFC Tool\bin\Debug\TI NFC Tool.pdb
+C:\NFC\Test\nfc-standalone\TI NFC Tool\TI NFC Tool\obj\Debug\ResolveAssemblyReference.cache
+C:\NFC\Test\nfc-standalone\TI NFC Tool\TI NFC Tool\obj\Debug\TI_NFC_Tool.TI_NFC_Tool.resources
+C:\NFC\Test\nfc-standalone\TI NFC Tool\TI NFC Tool\obj\Debug\TI_NFC_Tool.Properties.Resources.resources
+C:\NFC\Test\nfc-standalone\TI NFC Tool\TI NFC Tool\obj\Debug\GenerateResource.read.1.tlog
+C:\NFC\Test\nfc-standalone\TI NFC Tool\TI NFC Tool\obj\Debug\GenerateResource.write.1.tlog
+C:\Users\a0225043\Documents\CCS Projects\NFC Standalone Code Logs\nfc-standalone\TI NFC Tool\TI NFC Tool\obj\Debug\TI NFC Tool.exe
+C:\Users\a0225043\Documents\CCS Projects\NFC Standalone Code Logs\nfc-standalone\TI NFC Tool\TI NFC Tool\obj\Debug\TI NFC Tool.pdb
+C:\Users\a0225043\Documents\CCS Projects\NFC Standalone Code Logs\nfc-standalone\TI NFC Tool\TI NFC Tool\bin\Debug\TI NFC Tool.exe
+C:\Users\a0225043\Documents\CCS Projects\NFC Standalone Code Logs\nfc-standalone\TI NFC Tool\TI NFC Tool\bin\Debug\TI NFC Tool.pdb
+C:\Users\a0225043\Documents\CCS Projects\NFC Standalone Code Logs\nfc-standalone\TI NFC Tool\TI NFC Tool\obj\Debug\TI NFC Tool.csprojResolveAssemblyReference.cache
+C:\Users\a0225043\Documents\CCS Projects\NFC Standalone Code Logs\nfc-standalone\TI NFC Tool\TI NFC Tool\obj\Debug\TI_NFC_Tool.TI_NFC_Tool.resources
+C:\Users\a0225043\Documents\CCS Projects\NFC Standalone Code Logs\nfc-standalone\TI NFC Tool\TI NFC Tool\obj\Debug\TI_NFC_Tool.Properties.Resources.resources
+C:\Users\a0225043\Documents\CCS Projects\NFC Standalone Code Logs\nfc-standalone\TI NFC Tool\TI NFC Tool\obj\Debug\TI NFC Tool.csproj.GenerateResource.Cache
+C:\NFC\Repositories\nfc-standalone\TI NFC Tool\TI NFC Tool\obj\Debug\TI NFC Tool.exe
+C:\NFC\Repositories\nfc-standalone\TI NFC Tool\TI NFC Tool\obj\Debug\TI NFC Tool.pdb
+C:\NFC\Repositories\nfc-standalone\TI NFC Tool\TI NFC Tool\bin\Debug\TI NFC Tool.exe
+C:\NFC\Repositories\nfc-standalone\TI NFC Tool\TI NFC Tool\bin\Debug\TI NFC Tool.pdb
+C:\NFC\Repositories\nfc-standalone\TI NFC Tool\TI NFC Tool\obj\Debug\TI_NFC_Tool.TI_NFC_Tool.resources
+C:\NFC\Repositories\nfc-standalone\TI NFC Tool\TI NFC Tool\obj\Debug\TI_NFC_Tool.Properties.Resources.resources
+C:\NFC\Repositories\nfc-standalone\TI NFC Tool\TI NFC Tool\obj\Debug\TI NFC Tool.csproj.GenerateResource.Cache
+C:\NFC\Repositories\nfc-standalone\TI NFC Tool\TI NFC Tool\obj\Debug\TI NFC Tool.csprojResolveAssemblyReference.cache

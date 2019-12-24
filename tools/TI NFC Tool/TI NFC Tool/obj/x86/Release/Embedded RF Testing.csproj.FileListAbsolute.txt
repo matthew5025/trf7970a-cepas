@@ -1,0 +1,9 @@
+C:\Users\a0273442\Documents\Visual Studio 2010\Projects\Embedded RF Testing\Embedded RF Testing\bin\Release\Embedded RF Testing.exe
+C:\Users\a0273442\Documents\Visual Studio 2010\Projects\Embedded RF Testing\Embedded RF Testing\bin\Release\Embedded RF Testing.pdb
+C:\Users\a0273442\Documents\Visual Studio 2010\Projects\Embedded RF Testing\Embedded RF Testing\obj\x86\Release\ResolveAssemblyReference.cache
+C:\Users\a0273442\Documents\Visual Studio 2010\Projects\Embedded RF Testing\Embedded RF Testing\obj\x86\Release\Embedded_RF_Testing.Form1.resources
+C:\Users\a0273442\Documents\Visual Studio 2010\Projects\Embedded RF Testing\Embedded RF Testing\obj\x86\Release\Embedded_RF_Testing.Properties.Resources.resources
+C:\Users\a0273442\Documents\Visual Studio 2010\Projects\Embedded RF Testing\Embedded RF Testing\obj\x86\Release\GenerateResource.read.1.tlog
+C:\Users\a0273442\Documents\Visual Studio 2010\Projects\Embedded RF Testing\Embedded RF Testing\obj\x86\Release\GenerateResource.write.1.tlog
+C:\Users\a0273442\Documents\Visual Studio 2010\Projects\Embedded RF Testing\Embedded RF Testing\obj\x86\Release\Embedded RF Testing.exe
+C:\Users\a0273442\Documents\Visual Studio 2010\Projects\Embedded RF Testing\Embedded RF Testing\obj\x86\Release\Embedded RF Testing.pdb

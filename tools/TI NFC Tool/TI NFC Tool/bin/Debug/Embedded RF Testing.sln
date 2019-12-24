@@ -1,0 +1,26 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
+Project("{911E67C6-3D85-4FCE-B560-20A9C3E3FF48}") = "Embedded RF Testing", "Embedded RF Testing.exe", "{1604C623-BD06-439E-8CE3-37F4BA36C479}"
+	ProjectSection(DebuggerProjectSystem) = preProject
+		PortSupplier = 00000000-0000-0000-0000-000000000000
+		Executable = C:\Users\a0273442\Documents\Visual Studio 2010\Projects\Embedded RF Testing\Embedded RF Testing\bin\Debug\Embedded RF Testing.exe
+		RemoteMachine = LTA0090458B
+		StartingDirectory = C:\Users\a0273442\Documents\Visual Studio 2010\Projects\Embedded RF Testing\Embedded RF Testing\bin\Debug
+		Environment = Default
+		LaunchingEngine = 00000000-0000-0000-0000-000000000000
+		LaunchSQLEngine = No
+		AttachLaunchAction = No
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x86 = Debug|x86
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{1604C623-BD06-439E-8CE3-37F4BA36C479}.Debug|x86.ActiveCfg = Debug|x86
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
