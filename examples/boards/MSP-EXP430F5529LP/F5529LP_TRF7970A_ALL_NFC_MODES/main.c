@@ -45,25 +45,9 @@ tTRF79x0_Version g_eTRFVersion;
 bool g_bSupportCertification;
 uint16_t g_ui16ListenTime;
 
-#if (NFC_PEER_2_PEER_INITIATOR_ENABLED || NFC_PEER_2_PEER_TARGET_ENABLED)
-	t_sNfcP2PMode g_sP2PSupportedModes;
-	t_sNfcP2PCommBitrate g_sP2PSupportedTargetBitrates;
-	t_sNfcP2PCommBitrate g_sP2PSupportedInitiatorBitrates;
-	t_sNfcDEP_P2PSetup g_sP2PSetupOptions;
-	uint8_t g_ui8NfcDepInitiatorDID;
-#endif
-
 #if NFC_CARD_EMULATION_ENABLED
 	t_sNfcCEMode g_sCESupportedModes;
 #endif
-
-#if NFC_READER_WRITER_ENABLED
-	t_sNfcRWMode g_sRWSupportedModes;
-	t_sNfcRWCommBitrate g_sRWSupportedBitrates;
-	t_sIsoDEP_RWSetup g_sRWSetupOptions;
-	uint8_t g_ui8IsoDepInitiatorDID;
-#endif
-
 
 void NFC_configuration(void);
 void Serial_processCommand(void);
@@ -179,22 +163,6 @@ void main(void)
 	// CE Variables
 	t_sNfcCEMode sCEMode;
 
-#if (NFC_PEER_2_PEER_INITIATOR_ENABLED || NFC_PEER_2_PEER_TARGET_ENABLED)
-	// Peer to Peer TX Variables
-	uint32_t ui32PacketRemaining;
-	uint8_t ui8TXBytes;
-	uint16_t ui16TxIndex;
-	uint32_t ui32PacketLength;
-	uint8_t * pui8NdefPointer;
-	uint8_t ui8FragmentSize;
-	char pcBytesReceivedString[5];
-
-	// Bytes Received from Peer to Peer
-	uint16_t ui16BytesReceived = 0x00;
-
-	// Peer to peer RX Status
-	tNfcP2PRxStatus sP2PRxStatus;
-#endif
 	t_sNfcP2PMode sP2PMode;
 	t_sNfcP2PCommBitrate sP2PBitrate;
 
@@ -263,14 +231,6 @@ void main(void)
 	LCD_init();
 #endif
 
-#if NFC_READER_WRITER_ENABLED
-	// Initialize the RW T2T, T3T, T4T and T5 state machines
-	T2T_init(g_ui8TxBuffer,256);
-	T3T_init(g_ui8TxBuffer,256);
-	T4T_init(g_ui8TxBuffer,256);
-	T5T_init(g_ui8TxBuffer,256);
-#endif
-
 	while(1)
 	{
 		eTempNFCState = NFC_run();
@@ -279,179 +239,9 @@ void main(void)
 		{
 			if(NFC_RW_getModeStatus(&sRWMode,&sRWBitrate))
 			{
-#if NFC_READER_WRITER_ENABLED
-				NFC_RW_LED_POUT |= NFC_RW_LED_BIT;
-
-				if( sRWMode.bits.bNfcA == 1)
-				{
-					if(NFC_A_getSAK() == 0x00)
-					{
-						// T2T Tag State Machine
-						T2T_stateMachine();
-					}
-					else if(NFC_A_getSAK() & 0x20)
-					{
-						// T4T Tag State Machine
-						T4T_stateMachine();
-					}
-				}
-				else if(sRWMode.bits.bNfcB == 1)
-				{
-					if(NFC_B_isISOCompliant())
-					{
-						// T4T Tag State Machine
-						T4T_stateMachine();
-					}
-				}
-				else if(sRWMode.bits.bNfcF == 1)
-				{
-					// T3T Tag State Machine
-					T3T_stateMachine();
-				}
-				else if(sRWMode.bits.bISO15693 == 1)
-				{
-					// T5T Tag State Machine
-					T5T_stateMachine();
-				}
-#endif
 			}
 			else if(NFC_P2P_getModeStatus(&sP2PMode,&sP2PBitrate))
 			{
-#if (NFC_PEER_2_PEER_INITIATOR_ENABLED || NFC_PEER_2_PEER_TARGET_ENABLED)
-				NFC_P2P_LED_POUT |= NFC_P2P_LED_BIT;
-
-				//
-				// Read the receive status structure - check if there is a received packet from the Target
-				//
-				sP2PRxStatus = NFC_P2P_getReceiveState();
-				if(sP2PRxStatus.sDataReceivedStatus != RECEIVED_NO_FRAGMENT)
-				{
-
-					if(ui16BytesReceived == 0x00)
-					{
-						// Send NDEF Total Size
-						Serial_printBuffer((char *)&sP2PRxStatus.ui32PacketSize,4,P2P_NDEF_TOTAL_SIZE);
-					}
-
-					ui16BytesReceived = sP2PRxStatus.ui16DataReceivedLength + ui16BytesReceived;
-
-					convertWordToAscii(ui16BytesReceived,(uint8_t *)pcBytesReceivedString);
-
-					Serial_printBuffer((char *)sP2PRxStatus.pui8RxDataPtr,sP2PRxStatus.ui16DataReceivedLength,P2P_PAYLOAD_DATA);
-
-					Serial_printf(pcBytesReceivedString,P2P_RX_SIZE_DATA);
-				#ifdef MSP430F5529_EXP_LCD_ENABLED
-					LCD_stringDraw(6,11*6,pcBytesReceivedString,DOGS102x6_DRAW_NORMAL);
-				#endif
-
-					// Check if the last packet was received completely
-					if((uint16_t) sP2PRxStatus.ui32PacketSize == ui16BytesReceived)
-					{
-						// Reset Bytes received
-						ui16BytesReceived = 0;
-					}
-				}
-
-				// Check for communication with Host
-				if(g_bSerialConnectionEstablished == false)
-				{
-					// Check for button input
-					if ((buttonsPressed & BUTTON_S1) && (buttonDebounce == 2))
-					{
-						ui16TxIndex = 0x00;
-						buttonDebounce = 0x00;
-						// Total Length of the packet.
-						ui32PacketLength = 46;
-						ui32PacketRemaining = ui32PacketLength;
-						// Send Text String
-						pui8NdefPointer = (uint8_t *) (pui8NfcPoweredByTexasInstruments+2);
-						if(ui32PacketRemaining < LLCP_MIU)
-						{
-							ui8FragmentSize = (uint8_t) ui32PacketRemaining;
-						}
-						else
-						{
-							ui8FragmentSize = LLCP_MIU;
-						}
-						ui8TXBytes = NFC_P2P_sendNdefPacket(pui8NdefPointer,true,ui8FragmentSize,ui32PacketLength);
-
-						if(ui8TXBytes)
-						{
-							ui32PacketRemaining = ui32PacketRemaining - (uint16_t) (ui8TXBytes);
-							ui16TxIndex = ui16TxIndex + (uint16_t) ui8TXBytes;
-#ifdef MSP430F5529_EXP_BOARD_ENABLED
-							// Toggle TX LED
-							NFC_TX_LED_POUT ^= NFC_TX_LED_BIT;
-#endif
-						}
-					}
-					else if((buttonsPressed & BUTTON_S2) && (buttonDebounce == 2))
-					{
-						ui16TxIndex = 0x00;
-						buttonDebounce = 0x00;
-						// Total Length of the packet.
-						ui32PacketLength = 3597;
-						ui32PacketRemaining = ui32PacketLength;
-						// Send TI Logo
-						pui8NdefPointer = (uint8_t *) (pui8TiLogo + 2);
-						if(ui32PacketRemaining < LLCP_MIU)
-						{
-							ui8FragmentSize = (uint8_t) ui32PacketRemaining;
-						}
-						else
-						{
-							ui8FragmentSize = LLCP_MIU;
-						}
-						ui8TXBytes = NFC_P2P_sendNdefPacket(pui8NdefPointer,true,ui8FragmentSize,ui32PacketLength);
-
-						if(ui8TXBytes)
-						{
-							ui32PacketRemaining = ui32PacketRemaining - (uint16_t) (ui8TXBytes);
-							ui16TxIndex = ui16TxIndex + (uint16_t) ui8TXBytes;
-
-#ifdef MSP430F5529_EXP_BOARD_ENABLED
-							// Toggle TX LED
-							NFC_TX_LED_POUT ^= NFC_TX_LED_BIT;
-#endif
-						}
-					}
-					else if(ui32PacketRemaining > 0)
-					{
-						if(ui32PacketRemaining < LLCP_MIU)
-						{
-							ui8FragmentSize = (uint8_t) ui32PacketRemaining;
-						}
-						else
-						{
-							ui8FragmentSize = LLCP_MIU;
-						}
-						ui8TXBytes = NFC_P2P_sendNdefPacket((uint8_t *) (pui8NdefPointer+ui16TxIndex),false,ui8FragmentSize,(uint32_t) ui32PacketLength);
-
-						if(ui8TXBytes)
-						{
-							ui32PacketRemaining = ui32PacketRemaining - (uint16_t) (ui8TXBytes);
-							ui16TxIndex = ui16TxIndex + (uint16_t) ui8TXBytes;
-
-#ifdef MSP430F5529_EXP_BOARD_ENABLED
-							// Toggle TX LED
-							NFC_TX_LED_POUT ^= NFC_TX_LED_BIT;
-#endif
-						}
-					}
-					else if(buttonDebounce == 0x00)
-					{
-						// Enable the button debounce.
-						buttonDebounce = 0x01;
-					}
-					else if (ui32PacketRemaining == 0)
-					{
-#ifdef MSP430F5529_EXP_BOARD_ENABLED
-						// Clear TX LED
-						NFC_TX_LED_POUT &= ~NFC_TX_LED_BIT;
-#endif
-					}
-				}
-#endif
 			}
 			else if(NFC_CE_getModeStatus(&sCEMode))
 			{
@@ -486,14 +276,6 @@ void main(void)
  			{
 				eCurrentNFCState = eTempNFCState;
 
-#if NFC_READER_WRITER_ENABLED
-				// Initialize the RW T2T, T3T, T4T and T5 state machines
-				T2T_init(g_ui8TxBuffer,256);
-				T3T_init(g_ui8TxBuffer,256);
-				T4T_init(g_ui8TxBuffer,256);
-				T5T_init(g_ui8TxBuffer,256);
-#endif
-
 #if (NFC_CARD_EMULATION_ENABLED || NFC_PEER_2_PEER_TARGET_ENABLED || NFC_PEER_2_PEER_INITIATOR_ENABLED)
 				// Initialize IDs for NFC-A, NFC-B and NFC-F
 				NFC_initIDs();
@@ -504,10 +286,6 @@ void main(void)
 				NFC_CE_LED_POUT &= ~NFC_CE_LED_BIT;
 
 				buttonDebounce = 1;
-#if (NFC_PEER_2_PEER_INITIATOR_ENABLED || NFC_PEER_2_PEER_TARGET_ENABLED)
-				ui16BytesReceived = 0;
-				ui32PacketRemaining = 0;
-#endif
 #ifdef MSP430F5529_EXP_LCD_ENABLED
 				LCD_stringDraw(3,9*6,"TBD     ",DOGS102x6_DRAW_NORMAL);
 				LCD_stringDraw(4,9*6,"        ",DOGS102x6_DRAW_NORMAL);
@@ -522,16 +300,6 @@ void main(void)
 				eCurrentNFCState = eTempNFCState;
 			}
 
-#if (NFC_PEER_2_PEER_INITIATOR_ENABLED || NFC_PEER_2_PEER_TARGET_ENABLED)
-			if(eCurrentNFCState == NFC_DATA_EXCHANGE_PROTOCOL)
-			{
-				updateLcdfcStatus(false);
-#ifdef MSP430F5529_EXP_LCD_ENABLED
-				convertWordToAscii(ui16BytesReceived,(uint8_t *)pcBytesReceivedString);
-				LCD_stringDraw(6,11*6,pcBytesReceivedString,DOGS102x6_DRAW_NORMAL);
-#endif
-			}
-#endif
 		}
 
 
@@ -579,21 +347,9 @@ void main(void)
 
 void NFC_configuration(void)
 {
-#if (NFC_PEER_2_PEER_INITIATOR_ENABLED || NFC_PEER_2_PEER_TARGET_ENABLED)
-	g_sP2PSupportedModes.ui8byte = 0x00;
-	g_sP2PSupportedTargetBitrates.ui8byte = 0x00;
-	g_sP2PSupportedInitiatorBitrates.ui8byte = 0x00;
-	g_sP2PSetupOptions.ui8byte = 0x00;
-#endif
 
 #if NFC_CARD_EMULATION_ENABLED
 	g_sCESupportedModes.ui8byte = 0x00;
-#endif
-
-#if NFC_READER_WRITER_ENABLED
-	g_sRWSupportedModes.ui8byte = 0x00;
-	g_sRWSupportedBitrates.ui16byte = 0x0000;
-	g_sRWSetupOptions.ui16byte = 0x0000;
 #endif
 
 	// Set the TRF7970 Version being used
@@ -624,48 +380,6 @@ void NFC_configuration(void)
 	// Enable (1) or disable (0) the Auto SDD Anti-collision function of the TRF7970A
 	g_bEnableAutoSDD = 0;
 
-#if (NFC_PEER_2_PEER_INITIATOR_ENABLED || NFC_PEER_2_PEER_TARGET_ENABLED)
-
-	// Enable Peer 2 Peer Supported Modes
-	g_sP2PSupportedModes.bits.bTargetEnabled = 0;
-	g_sP2PSupportedModes.bits.bInitiatorEnabled = 0;
-
-	// Set P2P Supported Bit Rates - Target mode
-	g_sP2PSupportedTargetBitrates.bits.bPassive106kbps = 0;
-	g_sP2PSupportedTargetBitrates.bits.bPassive212kbps = 0;
-	g_sP2PSupportedTargetBitrates.bits.bPassive424kbps = 0;
-	g_sP2PSupportedTargetBitrates.bits.bActive106kbps = 0;
-	g_sP2PSupportedTargetBitrates.bits.bActive212kbps = 0;
-	g_sP2PSupportedTargetBitrates.bits.bActive424kbps = 0;
-
-	// Set P2P Supported Bit Rates - Initiator mode
-	g_sP2PSupportedInitiatorBitrates.bits.bPassive106kbps = 0;
-	g_sP2PSupportedInitiatorBitrates.bits.bPassive212kbps = 0;
-	g_sP2PSupportedInitiatorBitrates.bits.bPassive424kbps = 0;
-	g_sP2PSupportedInitiatorBitrates.bits.bActive106kbps = 0;
-	g_sP2PSupportedInitiatorBitrates.bits.bActive212kbps = 0;
-	g_sP2PSupportedInitiatorBitrates.bits.bActive424kbps = 0;
-
-	// Certification Config Start //
-
-	// Enable (1) or disable (0) Wave 1 NFC Forum Certification functionality
-	// Note: Enabling this feature can affect interoperability with NFC Devices that are not certified.
-	g_bSupportCertification = 0;
-
-	// Allows for Customization of the DID (Device Identification) number when in initiator mode
-	g_ui8NfcDepInitiatorDID = 0x00;
-
-	// Enable LLCP
-	g_sP2PSetupOptions.bits.bP2PSupportLLCP = 1;
-
-	// Enable Loopback
-	g_sP2PSetupOptions.bits.bP2PSupportLoopback = 0;
-
-	// Specify maximum number of timeouts and protocol errors allowed before resetting
-	g_sP2PSetupOptions.bits.ui3P2PMaxTimeouts = 2;
-	g_sP2PSetupOptions.bits.ui3P2PMaxProtocolErrors = 2;
-#endif
-
 #if NFC_CARD_EMULATION_ENABLED
 
 	// Enable Card Emulation Supported Modes
@@ -674,63 +388,10 @@ void NFC_configuration(void)
 	
 #endif
 
-#if NFC_READER_WRITER_ENABLED
-	// Enable Reader Writer Supported Modes
-	g_sRWSupportedModes.bits.bNfcA = 0;
-	g_sRWSupportedModes.bits.bNfcB = 0;
-	g_sRWSupportedModes.bits.bNfcF = 0;
-	g_sRWSupportedModes.bits.bISO15693 = 0;
-
-	// NFC-A Bitrates
-	g_sRWSupportedBitrates.bits.bNfcA_106kbps = 0;		// Must be enabled if bNfcA is set
-	g_sRWSupportedBitrates.bits.bNfcA_212kbps = 0;
-	g_sRWSupportedBitrates.bits.bNfcA_424kbps = 0;
-	g_sRWSupportedBitrates.bits.bNfcA_848kbps = 0;
-	// NFC-B Bitrates
-	g_sRWSupportedBitrates.bits.bNfcB_106kbps = 0; 		// Must be enabled if bNfcB is set
-	g_sRWSupportedBitrates.bits.bNfcB_212kbps = 0;
-	g_sRWSupportedBitrates.bits.bNfcB_424kbps = 0;
-	g_sRWSupportedBitrates.bits.bNfcB_848kbps = 0;
-	// NFC-F Bitrates
-	g_sRWSupportedBitrates.bits.bNfcF_212kbps = 0;
-	g_sRWSupportedBitrates.bits.bNfcF_424kbps = 0;
-	// ISO15693 Bitrates
-	g_sRWSupportedBitrates.bits.bISO15693_26_48kbps = 0;
-
-	// Default Max number of WTX 2
-	g_sRWSetupOptions.bits.ui3RWMaxWTX = 2;
-	// Default Max number of ACK 2
-	g_sRWSetupOptions.bits.ui3RWMaxACK = 2;
-	// Default Max number of NACK 2
-	g_sRWSetupOptions.bits.ui3RWMaxNACK = 2;
-	// Default Max number of DSL 2
-	g_sRWSetupOptions.bits.ui3RWMaxDSL = 2;
-
-	g_ui8IsoDepInitiatorDID = 0x00;
-#endif
-
-#if (NFC_PEER_2_PEER_INITIATOR_ENABLED || NFC_PEER_2_PEER_TARGET_ENABLED)
-	// Configure Peer 2 Peer functions for the correct modes and communication bitrates
-	NFC_P2P_configure(g_sP2PSupportedModes,g_sP2PSupportedTargetBitrates,g_sP2PSupportedInitiatorBitrates);
-
-	// Configure NFC DEP functions including passing the DID
-	NFCDEP_configure_P2P(g_sP2PSetupOptions,g_bSupportCertification,g_ui8NfcDepInitiatorDID);
-#endif
-
 #if NFC_CARD_EMULATION_ENABLED
 	NFC_CE_configure(g_sCESupportedModes);
 
 	T4T_CE_init();
-#endif
-
-
-#if NFC_READER_WRITER_ENABLED
-	if (g_sRWSupportedModes.ui8byte != 0x00)
-	{
-		// To be made shortly
-		NFC_RW_configure(g_sRWSupportedModes,g_sRWSupportedBitrates);
-	}
-	ISODEP_configure_RW(g_sRWSetupOptions,g_ui8IsoDepInitiatorDID);
 #endif
 
 	// Set the Auto SDD flag within nfc_a.c
@@ -767,15 +428,6 @@ void Serial_processCommand(void)
 {
 
 	tNFCControllerCommands eHostCommand;
-#if (NFC_PEER_2_PEER_INITIATOR_ENABLED || NFC_PEER_2_PEER_TARGET_ENABLED)
-	uint32_t ui32NdefLength;
-	uint8_t ui8FragmentLength;
-	uint16_t ui32PacketIndex;
-#endif
-#if NFC_READER_WRITER_ENABLED
-	t_sNfcRWMode sRWMode;
-	t_sNfcRWCommBitrate sRWBitrate;
-#endif
 	uint8_t ui8CurrentConfiguration[19];
 
 	// When SOF and length are received, but still missing data
@@ -802,48 +454,15 @@ void Serial_processCommand(void)
 			NFC_HOST_LED_POUT |= NFC_HOST_LED_BIT;
 			Serial_printf(NFC_FW_VERSION,FW_VERSION_CMD);
 
-#if NFC_PEER_2_PEER_TARGET_ENABLED
-			ui8CurrentConfiguration[0] |= P2P_TARGET_FW_ENABLED;
-			ui8CurrentConfiguration[1] |= g_sP2PSupportedModes.bits.bTargetEnabled;
-			ui8CurrentConfiguration[1] |= (g_sP2PSupportedTargetBitrates.ui8byte << 1);
-#endif
-
-#if NFC_PEER_2_PEER_INITIATOR_ENABLED
-			ui8CurrentConfiguration[0] |= P2P_INITIATOR_FW_ENABLED;
-			ui8CurrentConfiguration[2] |= g_sP2PSupportedModes.bits.bInitiatorEnabled;
-			ui8CurrentConfiguration[2] |= (g_sP2PSupportedInitiatorBitrates.ui8byte << 1);
-#endif
-
 #if NFC_CARD_EMULATION_ENABLED
 			ui8CurrentConfiguration[0] |= CARD_EMULATION_FW_ENABLED;
 			ui8CurrentConfiguration[3] |= g_sCESupportedModes.ui8byte;
-#endif
-
-#if NFC_READER_WRITER_ENABLED
-			ui8CurrentConfiguration[0] |= READER_WRITER_FW_ENABLED;
-			ui8CurrentConfiguration[4] |= g_sRWSupportedModes.ui8byte;
-			ui8CurrentConfiguration[5] |= (uint8_t) (g_sRWSupportedBitrates.ui16byte & 0xFF);
-			ui8CurrentConfiguration[6] |= (uint8_t) ((g_sRWSupportedBitrates.ui16byte >> 8) & 0xFF);
 #endif
 
 			ui8CurrentConfiguration[7] = (uint8_t) (g_ui16ListenTime & 0xFF);
 			ui8CurrentConfiguration[8] = (uint8_t) ((g_ui16ListenTime >> 8) & 0xFF);
 
 			ui8CurrentConfiguration[9] = g_bSupportCertification;
-
-#if (NFC_PEER_2_PEER_INITIATOR_ENABLED || NFC_PEER_2_PEER_TARGET_ENABLED)
-			ui8CurrentConfiguration[10] = g_sP2PSetupOptions.ui8byte;
-
-			ui8CurrentConfiguration[11] = g_ui8NfcDepInitiatorDID;
-#endif
-
-#if NFC_READER_WRITER_ENABLED
-			ui8CurrentConfiguration[12] = (uint8_t) (g_sRWSetupOptions.ui16byte & 0xFF);
-
-			ui8CurrentConfiguration[13] = (uint8_t) ((g_sRWSetupOptions.ui16byte >> 8) & 0xFF);
-
-			ui8CurrentConfiguration[14] = g_ui8IsoDepInitiatorDID;
-#endif
 
 			ui8CurrentConfiguration[15] = g_bEnableAutoSDD;
 
@@ -872,27 +491,6 @@ void Serial_processCommand(void)
 
 			// Set Test Enable flag within trf79x0.c - Required for NFC Forum Certification
 			TRF79x0_testFlag(g_bSupportCertification);
-
-#if (NFC_PEER_2_PEER_INITIATOR_ENABLED || NFC_PEER_2_PEER_TARGET_ENABLED)
-			// P2P Options
-			g_sP2PSetupOptions.ui8byte = g_ui8SerialBuffer[4];
-
-			// NFC DEP DID
-			g_ui8NfcDepInitiatorDID = g_ui8SerialBuffer[5];
-
-			// Configure NFC DEP functions including passing the DID
-			NFCDEP_configure_P2P(g_sP2PSetupOptions,g_bSupportCertification,g_ui8NfcDepInitiatorDID);
-#endif
-
- #if NFC_READER_WRITER_ENABLED
-			// RW Options
-			g_sRWSetupOptions.ui16byte =  (uint16_t) (g_ui8SerialBuffer[6]) + ((uint16_t) g_ui8SerialBuffer[7] << 8);
-
-			// ISO DEP DID
-			g_ui8IsoDepInitiatorDID = g_ui8SerialBuffer[8];
-
-			ISODEP_configure_RW(g_sRWSetupOptions,g_ui8IsoDepInitiatorDID);
-#endif
 		}
 		else if(eHostCommand == TRF_SETTINGS && g_ui16BytesReceived == 9)
 		{
@@ -926,46 +524,6 @@ void Serial_processCommand(void)
 			// Set the Auto SDD flag within nfc_a.c
 			NFC_A_setAutoSDD(g_bEnableAutoSDD);
 		}
-#if (NFC_PEER_2_PEER_INITIATOR_ENABLED || NFC_PEER_2_PEER_TARGET_ENABLED)
-		else if(eHostCommand == P2P_START_CMD && g_ui16BytesReceived == 6)
-		{
-			g_sP2PSupportedTargetBitrates.ui8byte = g_ui8SerialBuffer[3];
-			g_sP2PSupportedInitiatorBitrates.ui8byte = g_ui8SerialBuffer[4];
-			g_sP2PSupportedModes.ui8byte = g_ui8SerialBuffer[5];
-
-			NFC_P2P_disable();
-			NFC_P2P_configure(g_sP2PSupportedModes,g_sP2PSupportedTargetBitrates,g_sP2PSupportedInitiatorBitrates);
-		}
-		else if(eHostCommand == P2P_STOP_CMD && g_ui16BytesReceived == 3)
-		{
-			NFC_P2P_disable();
-			g_sP2PSupportedModes.ui8byte = 0x00;
-		}
-		else if(eHostCommand == P2P_PUSH_PAYLOAD)
-		{
-			// Check if is a short record
-			if(g_ui8SerialBuffer[3] & 0x10)
-			{
-				ui32NdefLength = (uint32_t) g_ui8SerialBuffer[2];
-				ui32PacketIndex = 0;
-				ui8FragmentLength = SNEP_getTxBufferStatus();
-
-				if((uint32_t) ui8FragmentLength > ui32NdefLength)
-				{
-					ui8FragmentLength = (uint8_t) ui32NdefLength;
-				}
-
-				SNEP_setupPacket(&g_ui8SerialBuffer[3], ui32NdefLength,ui8FragmentLength);
-#ifdef MSP430F5529_EXP_BOARD_ENABLED
-				// Toggle Heart Beat LED (TX)
-				NFC_TX_LED_POUT ^= NFC_TX_LED_BIT;
-#endif
-			}
-
-			ui32PacketIndex = ui32PacketIndex + ui8FragmentLength;
-			ui32NdefLength =  ui32NdefLength - ui8FragmentLength;
-		}
-#endif
 #if (NFC_CARD_EMULATION_ENABLED)
 		else if(eHostCommand == CE_START_CMD && g_ui16BytesReceived == 4)
 		{
@@ -980,72 +538,6 @@ void Serial_processCommand(void)
 		else if(eHostCommand == CE_NDEF_CONFIG)
 		{
 			T4T_CE_updateNDEF(&g_ui8SerialBuffer[3],(uint16_t) (g_ui16BytesReceived-3));
-		}
-#endif
-#if (NFC_READER_WRITER_ENABLED)
-		else if(eHostCommand == RW_START_CMD && g_ui16BytesReceived == 6)
-		{
-			g_sRWSupportedBitrates.ui16byte = (g_ui8SerialBuffer[4] << 8) + g_ui8SerialBuffer[3];
-			g_sRWSupportedModes.ui8byte = g_ui8SerialBuffer[5];
-
-			NFC_RW_configure(g_sRWSupportedModes,g_sRWSupportedBitrates);
-		}
-		else if(eHostCommand == RW_STOP_CMD && g_ui16BytesReceived == 3)
-		{
-			NFC_RW_disable();
-			g_sRWSupportedModes.ui8byte = 0x00;
-		}
-		else if(eHostCommand == RW_WRITE_TAG)
-		{
-			if(NFC_RW_getModeStatus(&sRWMode,&sRWBitrate))
-			{
-				if( sRWMode.bits.bNfcA == 1)
-				{
-					if(NFC_A_getSAK() == 0x00)
-					{
-						// T2T Tag Write State Machine
-						T2T_writeNDEF(&g_ui8SerialBuffer[3],(uint16_t) (g_ui16BytesReceived-3));
-					}
-					else if(NFC_A_getSAK() & 0x20)
-					{
-						// T4T Tag Write State Machine
-						T4T_writeNDEF(&g_ui8SerialBuffer[3],(uint16_t) (g_ui16BytesReceived-3));
-					}
-				}
-				else if(sRWMode.bits.bNfcB == 1)
-				{
-					if(NFC_B_isISOCompliant())
-					{
-						// T4T Tag Write State Machine
-						T4T_writeNDEF(&g_ui8SerialBuffer[3],(uint16_t) (g_ui16BytesReceived-3));
-					}
-				}
-				else if(sRWMode.bits.bNfcF == 1)
-				{
-					// T3T Tag State Machine
-					T3T_writeNDEF(&g_ui8SerialBuffer[3],(uint16_t) (g_ui16BytesReceived-3));
-				}
-				else if(sRWMode.bits.bISO15693 == 1)
-				{
-					// T5T Tag State Machine
-					T5T_writeNDEF(&g_ui8SerialBuffer[3],(uint16_t) (g_ui16BytesReceived-3));
-				}
-			}
-		}
-		else if (eHostCommand == RW_FORMAT_TAG)
-		{
-			if(NFC_RW_getModeStatus(&sRWMode,&sRWBitrate))
-			{
-				if(sRWMode.bits.bISO15693 == 1)
-				{
-					T5T_formatTag();
-				}
-				else
-				{
-					Serial_printf("Cannot Format non-T5T Tags! \n",RW_STATUS_DATA);
-				}
-			}
-
 		}
 #endif
 		g_ui16BytesReceived = 0;
