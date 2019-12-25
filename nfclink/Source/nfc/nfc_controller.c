@@ -87,24 +87,10 @@ void NFC_init(void)
 	g_sNfcStatus.sNfcModeCurrent.ui8Byte = 0x00;
 	g_sNfcStatus.sNfcModeSupport.ui8Byte = 0x00;
 
-#if (NFC_PEER_2_PEER_INITIATOR_ENABLED || NFC_PEER_2_PEER_TARGET_ENABLED)
-	g_sNfcStatus.sP2PModeCurrent.ui8byte = 0x00;
-	g_sNfcStatus.sP2PModeSupport.ui8byte = 0x00;
-	g_sNfcStatus.sP2PCommCurrent.ui8byte = 0x00;
-	g_sNfcStatus.sP2PTargetCommSupport.ui8byte = 0x00;
-	g_sNfcStatus.sP2PInitiatorCommSupport.ui8byte = 0x00;
-#endif
 
 #if NFC_CARD_EMULATION_ENABLED
 	g_sNfcStatus.sCEModeSupport.ui8byte = 0x00;
 	g_sNfcStatus.sRWModeCurrent.ui8byte = 0x00;
-#endif
-
-#if NFC_READER_WRITER_ENABLED
-	g_sNfcStatus.sRWModeSupport.ui8byte = 0x00;
-	g_sNfcStatus.sRWModeCurrent.ui8byte = 0x00;
-	g_sNfcStatus.sRWCommSupport.ui16byte = 0x0000;
-	g_sNfcStatus.sRWCommCurrent.ui16byte = 0x0000;
 #endif
 
 	// Certification Mode Config
@@ -163,36 +149,12 @@ tNfcState NFC_run(void)
 	ui8PrevState = g_sNfcStatus.sNfcModeSupport.ui8Byte;
 	g_sNfcStatus.sNfcModeSupport.ui8Byte = 0x00;
 
-#if (NFC_PEER_2_PEER_INITIATOR_ENABLED || NFC_PEER_2_PEER_TARGET_ENABLED)
-	if (g_sNfcStatus.sP2PModeSupport.ui8byte != 0x00)
-	{
-		// Check if Initiator is Supported
-		if(g_sNfcStatus.sP2PModeSupport.bits.bInitiatorEnabled == 1)
-		{
-			g_sNfcStatus.sNfcModeSupport.bits.bNfcModePoll = 1;
-		}
-		// Check if Target is Supported
-		if(g_sNfcStatus.sP2PModeSupport.bits.bTargetEnabled == 1)
-		{
-			g_sNfcStatus.sNfcModeSupport.bits.bNfcModeListen = 1;
-		}
-	}
-#endif
-
 #if NFC_CARD_EMULATION_ENABLED
 	if (g_sNfcStatus.sCEModeSupport.ui8byte != 0x00)
 	{
 		g_sNfcStatus.sNfcModeSupport.bits.bNfcModeListen = 1;
 	}
 #endif
-
-#if NFC_READER_WRITER_ENABLED
-	if(g_sNfcStatus.sRWModeSupport.ui8byte != 0x00)
-	{
-		g_sNfcStatus.sNfcModeSupport.bits.bNfcModePoll = 1;
-	}
-#endif
-
 
 	// Check that the current mode was not activated
 	if(g_sNfcStatus.eNfcState == NFC_PROTOCOL_ACTIVATION
