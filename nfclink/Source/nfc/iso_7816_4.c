@@ -259,6 +259,18 @@ uint8_t ISO_7816_4_stateMachine(uint8_t * pui8PduBufferPtr, uint8_t ui8Available
 
 uint8_t ISO_7816_4_processReceivedRequest(uint8_t * pui8RxPayload , uint8_t ui8CmdLength)
 {
+
+    Serial_printfLine("7816:\r\n");
+
+    int i = 0;
+    for(i = 0 ; i < ui8CmdLength; i ++){
+        uint8_t pui8Buffer[3];
+        convertByteToAscii(pui8RxPayload[i], pui8Buffer);
+        Serial_printfLine(pui8Buffer);
+    }
+
+    Serial_printfLine("\r\n");
+
 	uint8_t ui8Status = STATUS_SUCCESS;
 
 	tISO_7816_4_INS eInsValue;

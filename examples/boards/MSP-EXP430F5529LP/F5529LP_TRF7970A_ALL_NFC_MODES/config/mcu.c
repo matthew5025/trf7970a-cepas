@@ -602,18 +602,11 @@ void Serial_init(void)
 
 void Serial_printf(char * pui8String, tNFCHostCommands eCmdType)
 {
-	uint8_t pui8Packet[3];
-
 	if(g_bSerialConnectionEstablished == true)
 	{
-		// Send Packet Header
-		pui8Packet[0] = 0xFE;
-		pui8Packet[1] = (uint8_t) eCmdType;
-		pui8Packet[2] = (uint8_t) strlen(pui8String);
-		cdcSendDataWaitTilDone((BYTE *)pui8Packet,3,CDC0_INTFNUM,0);
-
 		//send the chars from buf
 		cdcSendDataWaitTilDone((BYTE *)pui8String,strlen(pui8String),CDC0_INTFNUM,0);
+
 	}
 }
 

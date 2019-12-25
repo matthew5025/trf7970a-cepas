@@ -309,6 +309,18 @@ void ISODEP_stateMachine(void)
 //
 tIsoDepState ISODEP_processReceivedRequest(uint8_t * pui8RxPayload , uint8_t ui8CmdLength)
 {
+
+//    Serial_printfLine("ISODEP\r\n");
+//
+//    int i = 0;
+//    for(i = 0 ; i < ui8CmdLength; i ++){
+//        uint8_t pui8Buffer[3];
+//        convertByteToAscii(pui8RxPayload[i], pui8Buffer);
+//        Serial_printfLine(pui8Buffer);
+//    }
+//
+//    Serial_printfLine("\r\n");
+
 	uint8_t ui8Command;
 	uint8_t ui8Counter;
 	uint8_t ui8Offset = 1;
