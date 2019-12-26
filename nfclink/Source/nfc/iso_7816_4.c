@@ -102,6 +102,7 @@ uint8_t ISO_7816_4_stateMachine(uint8_t * pui8PduBufferPtr, uint8_t ui8Available
 	uint8_t ui8Counter;
 	uint8_t ui8Offset = 0;
 
+
 	switch(g_eISO7816CommStatus)
 	{
 	case ISO_7816_4_CONNECTION_IDLE:
@@ -260,7 +261,7 @@ uint8_t ISO_7816_4_stateMachine(uint8_t * pui8PduBufferPtr, uint8_t ui8Available
 uint8_t ISO_7816_4_processReceivedRequest(uint8_t * pui8RxPayload , uint8_t ui8CmdLength)
 {
 
-    Serial_printfLine("7816:\r\n");
+    Serial_printfLine("ISO7816 Request:\r\n");
 
     int i = 0;
     for(i = 0 ; i < ui8CmdLength; i ++){
@@ -518,6 +519,14 @@ uint8_t ISO_7816_4_processReceivedRequest(uint8_t * pui8RxPayload , uint8_t ui8C
 		g_ui16CommandResponse = SW1_Sw2_FUNCTION_NOT_SUPPORTED;
 		g_ui8BytestoSend = 0x00;
 	}
+
+    Serial_printfLine("ISO7816 Response:\r\n");
+
+    uint8_t pui8Buffer[5];
+    convertWordToAscii(g_ui16CommandResponse, pui8Buffer);
+    Serial_printfLine(pui8Buffer);
+    Serial_printfLine("\r\n");
+
 
 	return ui8Status;
 
