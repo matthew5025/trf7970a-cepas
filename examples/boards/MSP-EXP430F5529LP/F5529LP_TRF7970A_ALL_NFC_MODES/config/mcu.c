@@ -637,7 +637,7 @@ void Serial_printBuffer(char * pui8String, uint8_t ui8Length, tNFCHostCommands e
 void Serial_printfLine(char * pui8String)
 {
 	//send the chars from buf
-	cdcSendDataWaitTilDone((BYTE *)pui8String,strlen(pui8String),CDC0_INTFNUM,0);
+    cdcSendDataInBackground((BYTE *)pui8String,strlen(pui8String),CDC0_INTFNUM,0);
 }
 
 uint8_t convertNibbleToAscii(uint8_t ui8Nibble)

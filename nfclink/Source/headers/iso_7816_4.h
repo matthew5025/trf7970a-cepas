@@ -24,6 +24,7 @@
 #define SW1_SW2_APP_NOT_FOUND			0x6A82
 #define SW1_SW2_INCORRECT_P1_P2			0x6A86
 #define SW1_SW2_APP_FOUND				0x9000
+#define CEPAS_OK                        0x9999
 
 #define CE_READ_FLAG					0x01
 #define CE_WRITE_FLAG					0x02

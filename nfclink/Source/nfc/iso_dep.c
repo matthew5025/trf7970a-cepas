@@ -1093,6 +1093,17 @@ void ISODEP_sendI_Block_REQ(void)
 		g_ui16IsoDepTxRemaining = 0;
 	}
 
+    Serial_printfLine("ISODEP Response:\r\n");
+
+    int i = 0;
+    for(i = 0 ; i < g_ui16IsoDepTxLength; i ++){
+        uint8_t pui8Buffer[3];
+        convertByteToAscii(g_pui8IsoDepTXBuffer[i], pui8Buffer);
+        Serial_printfLine(pui8Buffer);
+    }
+
+    Serial_printfLine("\r\n");
+
 	TRF79x0_writeFIFO(g_pui8IsoDepTXBuffer,CRC_BIT_ENABLE,g_ui16IsoDepTxLength,0);
 }
 
