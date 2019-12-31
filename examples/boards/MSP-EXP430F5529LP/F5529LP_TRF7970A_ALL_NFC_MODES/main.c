@@ -50,7 +50,6 @@ uint16_t g_ui16ListenTime;
 #endif
 
 void NFC_configuration(void);
-void Serial_processCommand(void);
 void LCD_init(void);
 void updateLcdfcStatus(bool bUpdateRssiOnly);
 
@@ -324,12 +323,6 @@ void main(void)
 			}
 		}
 #endif
-
-		// Check if any packets have been received from the NFC host.
-		if(g_ui16BytesReceived > 0)
-		{
-			Serial_processCommand();
-		}
 	}
 }
 
@@ -407,148 +400,6 @@ void NFC_configuration(void)
 	TRF79x0_testFlag(g_bSupportCertification);
 
 }
-
-//*****************************************************************************
-//
-//! Serial_processCommand - Process incoming commands from NFC host.
-//!
-//! Checks for the SOF (0xFE) from the host, and processes the commands. The
-//! possible commands are:
-//! 	COMMUNICATION_START - NFC Host connected
-//! 	START_P2P_CMD - Enable the P2P modes included in the command
-//! 	STOP_P2P_CMD - Disable the P2P stack.
-//! 	ACK_CMD - Not currently used
-//! 	NDEF_PAYLOAD - NDEF data to send via the P2P stack.
-//!		COMMUNICATION_END - Disconnect form the NFC Host.
-//!
-//! \return None.
-//
-//*****************************************************************************
-void Serial_processCommand(void)
-{
-
-	tNFCControllerCommands eHostCommand;
-	uint8_t ui8CurrentConfiguration[19];
-
-	// When SOF and length are received, but still missing data
-	if(g_ui16BytesReceived > 2 && ((g_ui8SerialBuffer[2] + 3) > g_ui16BytesReceived))
-	{
-		// Wait until full packet has been received
-	}
-	// Waiting for Length Byte
-	else if(g_ui16BytesReceived < 3)
-	{
-		// Wait until Length Byte received
-	}
-	else if(g_ui8SerialBuffer[2] + 3 == g_ui16BytesReceived)	// Length
-	{
-		eHostCommand = (tNFCControllerCommands) g_ui8SerialBuffer[1];
-		if(eHostCommand == COMM_START && g_ui16BytesReceived == 3)
-		{
-			// Initialize the Current Configuration variables to zero
-			//
-			memset(ui8CurrentConfiguration,0x00,19);
-
-			// Turn on LED
-			g_bSerialConnectionEstablished = true;
-			NFC_HOST_LED_POUT |= NFC_HOST_LED_BIT;
-			Serial_printf(NFC_FW_VERSION,FW_VERSION_CMD);
-
-#if NFC_CARD_EMULATION_ENABLED
-			ui8CurrentConfiguration[0] |= CARD_EMULATION_FW_ENABLED;
-			ui8CurrentConfiguration[3] |= g_sCESupportedModes.ui8byte;
-#endif
-
-			ui8CurrentConfiguration[7] = (uint8_t) (g_ui16ListenTime & 0xFF);
-			ui8CurrentConfiguration[8] = (uint8_t) ((g_ui16ListenTime >> 8) & 0xFF);
-
-			ui8CurrentConfiguration[9] = g_bSupportCertification;
-
-			ui8CurrentConfiguration[15] = g_bEnableAutoSDD;
-
-			ui8CurrentConfiguration[16] = g_bExtAmplifier;
-
-			ui8CurrentConfiguration[17] = g_bTRF5VSupply;
-
-			ui8CurrentConfiguration[18] = (uint8_t) g_eTRFVersion;
-
-			Serial_printBuffer((char *)ui8CurrentConfiguration,19,NFC_CONFIGURATION);
-
-		}
-		else if(eHostCommand == COMM_END && g_ui16BytesReceived == 3)
-		{
-			// Turn off LED
-			NFC_HOST_LED_POUT &= ~NFC_HOST_LED_BIT;
-			g_bSerialConnectionEstablished = false;
-		}
-		else if(eHostCommand == NFC_TEST_CONFIG && g_ui16BytesReceived == 9)
-		{
-			// NFC Certification
-			g_bSupportCertification = g_ui8SerialBuffer[3];
-
-			// Set Certification Support for all Protocols - Required for NFC Forum Certification
-			NFC_setSupportCertification(g_bSupportCertification);
-
-			// Set Test Enable flag within trf79x0.c - Required for NFC Forum Certification
-			TRF79x0_testFlag(g_bSupportCertification);
-		}
-		else if(eHostCommand == TRF_SETTINGS && g_ui16BytesReceived == 9)
-		{
-			// TRF Version Number
-			g_eTRFVersion = (tTRF79x0_Version) g_ui8SerialBuffer[3];
-
-			// Set the current TRF version within trf79x0.c
-			TRF79x0_setVersion(g_eTRFVersion);
-
-			// Listen Time
-			g_ui16ListenTime = (uint16_t) (g_ui8SerialBuffer[4]) + ((uint16_t) g_ui8SerialBuffer[5] << 8);
-
-			// Set the time the NFC stack will be with the RF field disabled (listen mode)
-			NFC_setListenTime(g_ui16ListenTime);
-
-			// 5V Power Supply
-			g_bTRF5VSupply = g_ui8SerialBuffer[6];
-
-			// Configure TRF Power Supply
-			TRF79x0_setPowerSupply(g_bTRF5VSupply);
-
-			// External Amplifier
-			g_bExtAmplifier = g_ui8SerialBuffer[7];
-
-			// Configure TRF External Amplifier for the transceiver
-			TRF79x0_setExtAmplifer(g_bExtAmplifier);
-
-			// Auto-SDD Setting
-			g_bEnableAutoSDD = g_ui8SerialBuffer[8];
-
-			// Set the Auto SDD flag within nfc_a.c
-			NFC_A_setAutoSDD(g_bEnableAutoSDD);
-		}
-#if (NFC_CARD_EMULATION_ENABLED)
-		else if(eHostCommand == CE_START_CMD && g_ui16BytesReceived == 4)
-		{
-			g_sCESupportedModes.ui8byte = g_ui8SerialBuffer[3];
-			NFC_CE_configure(g_sCESupportedModes);
-		}
-		else if(eHostCommand == CE_STOP_CMD && g_ui16BytesReceived == 3)
-		{
-			NFC_CE_disable();
-			g_sCESupportedModes.ui8byte = 0x00;
-		}
-		else if(eHostCommand == CE_NDEF_CONFIG)
-		{
-			T4T_CE_updateNDEF(&g_ui8SerialBuffer[3],(uint16_t) (g_ui16BytesReceived-3));
-		}
-#endif
-		g_ui16BytesReceived = 0;
-	}
-	else
-	{
-		// Partial Command Received
-		g_ui16BytesReceived = 0x00;
-	}
-}
-
 
 //*****************************************************************************
 //

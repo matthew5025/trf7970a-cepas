@@ -28,16 +28,26 @@ typedef union {
         uint8_t IssuerDataLen;
         uint8_t lastTransTRP[4];
         uint8_t lastTransRec[16];
-        void * issuerDataPtr;
+        void* issuerDataPtr;
+        void* transPtr;
     }purse;
 }CEPAS;
 
+typedef struct TRANS{
+    uint8_t type;
+    uint8_t amount[3];
+    uint8_t dateTime[4];
+    uint8_t userData[8];
+    void* nextTrans;
+}TRANS;
 
 typedef enum
 {
     WRONG_LENGTH = 0x6700,
-    COMMAND_SUCCESS = 0x9000,
-    COND_NOT_SASTFD = 0x6985
+    COND_NOT_SASTFD = 0x6985,
+    INCORRECT_DATA = 0x6A80,
+    APP_NOT_FOUND = 0x6A82,
+    COMMAND_SUCCESS = 0x9000
 }apduResp;
 
 
